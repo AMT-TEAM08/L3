@@ -1,88 +1,152 @@
 openapi: '3.0.3'
 info:
-  description: Api Documentation
+  description: Task Management Api Documentation
   version: '1.0'
   title: Api Documentation
 servers:
   - url: 'http://localhost:9090/api'
 tags:
-  - name: Quotes-end-point
-    description: Gestion des quotes
+  - name: Task-end-point
+    description: Manage tasks
 paths:
-  /quotes:
+  /tasks:
     get:
       tags:
-        - Quotes-end-point
-      summary: Obtient une liste de toutes les quotes
-      operationId: getQuotes
+        - Task-end-point
+      summary: Retrieve a list of all tasks
+      operationId: getTasks
       responses:
         '200':
-          description: OK
+          description: List of tasks retrieved successfully
           content:
             'application/json':
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Quote'
-        '404':
-          description: Not Found
+                  $ref: '#/components/schemas/Task'
     post:
       tags:
-        - Quotes-end-point
-      summary: Ajoute une nouvelle quote
-      operationId: addQuote
+        - Task-end-point
+      summary: Add a new task
+      operationId: addTask
       requestBody:
+        required: true
         content:
           'application/json':
             schema:
-              $ref: '#/components/schemas/Quote'
+              $ref: '#/components/schemas/Task'
       responses:
         '201':
-          description: quote crée
+          description: Task created successfully
           headers:
             Location:
-              description: URL de la quote crée
+              description: URL of the created task
               schema:
                 type: string
                 format: uri
-  /quotes/{id}:
+  /tasks/{task_id}:
     get:
       tags:
-        - Quotes-end-point
-      summary: Obtient une quote
-      operationId: getQuote
+        - Task-end-point
+      summary: Retrieve a task by ID
+      operationId: getTask
       parameters:
-        - name: id
+        - name: task_id
           in: path
-          description: numéro de la quote à obtenir
           required: true
+          description: The ID of the task
           schema:
             type: integer
             format: int32
       responses:
         '200':
-          description: OK
+          description: Task retrieved successfully
           content:
-            'application/json':
+            application/json:
               schema:
-                $ref: '#/components/schemas/Quote'
+                $ref: '#/components/schemas/Task'
         '404':
-          description: Not Found
-      deprecated: false
+          description: Task not found
+    patch:
+      tags:
+        - Task-end-point
+      summary: Update a task
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: The ID of the task
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: Task not found
+        '400':
+          description: Bad request
+    put:
+      summary: Replace a task
+      tags:
+        - Task-end-point
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: The ID of the task
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+      responses:
+        200:
+          description: Task replaced successfully
+        404:
+          description: Task not found
+        400:
+          description: Bad request
 components:
   schemas:
-    Quote:
-      description: toutes les caractéristiques d'une quote
+    Task:
+      description: Task object
       type: object
       properties:
-        author:
-          description: nom de l'auteur
+        name:
           type: string
-        citation:
-          description: phrase de la citation
+          description: The name of the task
+        description:
           type: string
-        id:
-          description: numéro auto-incrémenté de la citation
+          description: A brief description of the task
+        due_date:
+          type: string
+          format: date-time
+          description: The due date for the task
+        user_id:
           type: integer
-          format: int32
-      title: Quote
+          description: The ID of the user assigned to the task
+    User:
+      type: object
+      description: User object
+      properties:
+        id:
+          type: integer
+          description: The auto-generated id of the user
+        name:
+          type: string
+          description: The name of the user
