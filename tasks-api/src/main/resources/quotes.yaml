@@ -121,6 +121,7 @@ paths:
           description: Task not found
         400:
           description: Bad request
+
 components:
   schemas:
     Task:

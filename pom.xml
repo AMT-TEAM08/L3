@@ -22,7 +22,7 @@
     </parent>
 
     <modules>
-        <module>quotes-api</module>
+        <module>tasks-api</module>
         <module>quotes-spec</module>
     </modules>
 </project>
