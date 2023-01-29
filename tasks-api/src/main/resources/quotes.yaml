@@ -23,7 +23,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Task'
+                  $ref: '#/components/schemas/TaskResponse'
     post:
       tags:
         - Task-end-point
@@ -34,7 +34,7 @@ paths:
         content:
           'application/json':
             schema:
-              $ref: '#/components/schemas/Task'
+              $ref: '#/components/schemas/TaskRequest'
       responses:
         '201':
           description: Task created successfully
@@ -64,7 +64,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Task'
+                $ref: '#/components/schemas/TaskResponse'
         '404':
           description: Task not found
     patch:
@@ -84,14 +84,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Task'
+              $ref: '#/components/schemas/TaskRequest'
       responses:
         '200':
           description: Task updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Task'
+                $ref: '#/components/schemas/TaskResponse'
         '404':
           description: Task not found
         '400':
@@ -113,7 +113,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Task'
+              $ref: '#/components/schemas/TaskRequest'
       responses:
         200:
           description: Task replaced successfully
@@ -121,11 +121,122 @@ paths:
           description: Task not found
         400:
           description: Bad request
-
+  /users:
+    get:
+      tags:
+        - User-end-point
+      summary: Retrieve a list of all users
+      operationId: getUsers
+      responses:
+        '200':
+          description: List of users retrieved successfully
+          content:
+            'application/json':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+    post:
+      tags:
+        - User-end-point
+      summary: Add a new user
+      operationId: addUser
+      requestBody:
+        required: true
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      responses:
+        '201':
+          description: User created successfully
+          headers:
+            Location:
+              description: URL of the created user
+              schema:
+                type: string
+                format: uri
+  /users/{user_id}:
+    get:
+      tags:
+        - User-end-point
+      summary: Retrieve a user by ID
+      operationId: getUser
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: User not found
+    patch:
+      tags:
+        - User-end-point
+      summary: Update a user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: User not found
+        '400':
+          description: Bad request
+    put:
+      summary: Replace a user
+      tags:
+        - User-end-point
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      responses:
+        200:
+          description: User replaced successfully
+        404:
+          description: User not found
+        400:
+          description: Bad request
 components:
   schemas:
-    Task:
-      description: Task object
+    TaskResponse:
+      description: Task object when sent as a response by the API
       type: object
       properties:
         id:
@@ -144,13 +255,37 @@ components:
         user_id:
           type: integer
           description: The ID of the user assigned to the task
-    User:
+    TaskRequest:
+      description: Task object when received in a body of a request
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the task
+        description:
+          type: string
+          description: A brief description of the task
+        due_date:
+          type: string
+          format: date-time
+          description: The due date for the task
+        user_id:
+          type: integer
+          description: The ID of the user assigned to the task
+    UserResponse:
       type: object
       description: User object
       properties:
         id:
           type: integer
           description: The auto-generated id of the user
+        name:
+          type: string
+          description: The name of the user
+    UserRequest:
+      type: object
+      description: User object
+      properties:
         name:
           type: string
           description: The name of the user

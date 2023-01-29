@@ -3,7 +3,8 @@ package ch.heig.tasks.api.endpoints;
 import ch.heig.tasks.Entities.TaskEntity;
 import ch.heig.tasks.api.TasksApi;
 import ch.heig.tasks.api.exceptions.TaskNotFoundException;
-import ch.heig.tasks.api.model.Task;
+import ch.heig.tasks.api.model.TaskRequest;
+import ch.heig.tasks.api.model.TaskResponse;
 import ch.heig.tasks.repositories.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,12 +24,15 @@ public class TasksEndPoint implements TasksApi {
     @Autowired
     private TaskRepository taskRepository;
 
+    @Autowired
+    private UsersEndPoint usersEndPoint;
+
     @Override
-    public ResponseEntity<List<Task>> getTasks() {
+    public ResponseEntity<List<TaskResponse>> getTasks() {
         List<TaskEntity> taskEntities = taskRepository.findAll();
-        List<Task> tasks  = new ArrayList<>();
+        List<TaskResponse> tasks  = new ArrayList<>();
         for (TaskEntity taskEntity : taskEntities) {
-            Task task = new Task();
+            TaskResponse task = new TaskResponse();
             task.setId(taskEntity.getId());
             task.setName(taskEntity.getName());
             task.setDescription(taskEntity.getDescription());
@@ -36,15 +40,18 @@ public class TasksEndPoint implements TasksApi {
             task.setUserId(taskEntity.getUser().getId());
             tasks.add(task);
         }
-        return new ResponseEntity<List<Task>>(tasks,HttpStatus.OK);
+        return new ResponseEntity<List<TaskResponse>>(tasks,HttpStatus.OK);
     }
 
+
+
     @Override
-    public ResponseEntity<Void> addTask(@RequestBody Task task) {
+    public ResponseEntity<Void> addTask(@RequestBody TaskRequest task) {
         TaskEntity taskEntity = new TaskEntity();
         taskEntity.setName(task.getName());
         taskEntity.setDescription(task.getDescription());
         taskEntity.setDueDate(task.getDueDate());
+        taskEntity.setUser(usersEndPoint.getUser(task.getUserId()).getBody());
         TaskEntity taskAdded = taskRepository.save(taskEntity);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -55,17 +62,17 @@ public class TasksEndPoint implements TasksApi {
     }
 
     @Override
-    public ResponseEntity<Task> getTask(Integer id) {
+    public ResponseEntity<TaskResponse> getTask(Integer id) {
         Optional<TaskEntity> opt = taskRepository.findById(id);
         if (opt.isPresent()) {
             TaskEntity taskEntity = opt.get();
-            Task task = new Task();
+            TaskResponse task = new TaskResponse();
             task.setId(taskEntity.getId());
             task.setName(taskEntity.getName());
             task.setDescription(taskEntity.getDescription());
             task.setDueDate(taskEntity.getDueDate());
             task.setUserId(taskEntity.getUser().getId());
-            return new ResponseEntity<Task>(task, HttpStatus.OK);
+            return new ResponseEntity<TaskResponse>(task, HttpStatus.OK);
         } else {
 //            return ResponseEntity.notFound().build();
             throw new TaskNotFoundException(id);

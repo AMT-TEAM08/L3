@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 
 import java.time.OffsetDateTime;
 
-@Entity(name = "Task")
+@Entity(name = "TaskResponse")
 @Table(name = "Tasks")
 public class TaskEntity {
     @TableGenerator(name = "genTasks",
