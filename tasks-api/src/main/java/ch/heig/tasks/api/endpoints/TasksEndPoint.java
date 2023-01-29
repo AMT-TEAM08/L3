@@ -1,10 +1,10 @@
-package ch.heig.quotes.api.endpoints;
+package ch.heig.tasks.api.endpoints;
 
-import ch.heig.quotes.Entities.TaskEntity;
-import ch.heig.quotes.api.TasksApi;
-import ch.heig.quotes.api.exceptions.TaskNotFoundException;
-import ch.heig.quotes.api.model.Task;
-import ch.heig.quotes.repositories.TaskRepository;
+import ch.heig.tasks.Entities.TaskEntity;
+import ch.heig.tasks.api.TasksApi;
+import ch.heig.tasks.api.exceptions.TaskNotFoundException;
+import ch.heig.tasks.api.model.Task;
+import ch.heig.tasks.repositories.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +39,7 @@ public class TasksEndPoint implements TasksApi {
         return new ResponseEntity<List<Task>>(tasks,HttpStatus.OK);
     }
 
+    @Override
     public ResponseEntity<Void> addTask(@RequestBody Task task) {
         TaskEntity taskEntity = new TaskEntity();
         taskEntity.setName(task.getName());

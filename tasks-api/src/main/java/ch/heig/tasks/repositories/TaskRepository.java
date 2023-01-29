@@ -1,6 +1,6 @@
-package ch.heig.quotes.repositories;
+package ch.heig.tasks.repositories;
 
-import ch.heig.quotes.Entities.TaskEntity;
+import ch.heig.tasks.Entities.TaskEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

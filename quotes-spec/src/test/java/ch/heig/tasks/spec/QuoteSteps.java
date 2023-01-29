@@ -1,6 +1,5 @@
-package ch.heig.quotes.spec;
+package ch.heig.tasks.spec;
 
-import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;

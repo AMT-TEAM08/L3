@@ -1,4 +1,4 @@
-package ch.heig.quotes.services;
+package ch.heig.tasks.services;
 
 import org.springframework.stereotype.Service;
 

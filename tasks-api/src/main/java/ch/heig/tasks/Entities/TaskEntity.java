@@ -1,10 +1,9 @@
-package ch.heig.quotes.Entities;
+package ch.heig.tasks.Entities;
 
 
 import jakarta.persistence.*;
 
 import java.time.OffsetDateTime;
-import java.util.Date;
 
 @Entity(name = "Task")
 @Table(name = "Tasks")
