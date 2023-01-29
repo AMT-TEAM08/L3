@@ -1,12 +1,14 @@
 package ch.heig.tasks.api.endpoints;
 
 import ch.heig.tasks.Entities.TaskEntity;
-import ch.heig.tasks.Entities.UserEntity;
 import ch.heig.tasks.api.TasksApi;
 import ch.heig.tasks.api.exceptions.TaskNotFoundException;
+import ch.heig.tasks.api.exceptions.UserNotFoundException;
 import ch.heig.tasks.api.model.TaskRequest;
 import ch.heig.tasks.api.model.TaskResponse;
+import ch.heig.tasks.api.model.UserResponse;
 import ch.heig.tasks.mappers.TaskMapper;
+import ch.heig.tasks.mappers.UserMapper;
 import ch.heig.tasks.repositories.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +20,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -37,16 +38,22 @@ public class TasksEndPoint implements TasksApi {
         for (TaskEntity taskEntity : taskEntities) {
             tasks.add(TaskMapper.mapTaskEntityToTaskResponse(taskEntity));
         }
-        return new ResponseEntity<List<TaskResponse>>(tasks,HttpStatus.OK);
+        return new ResponseEntity<>(tasks,HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<Void> addTask(@RequestBody TaskRequest task) {
-        TaskEntity taskEntity = new TaskEntity();
-        taskEntity.setName(task.getName());
-        taskEntity.setDescription(task.getDescription());
-        taskEntity.setDueDate(task.getDueDate());
-        taskEntity.setUser(usersEndPoint.getUser(task.getUserId()).getBody());
+        UserResponse user = usersEndPoint.getUser(task.getUserId()).getBody();
+        if (user == null) {
+            throw new UserNotFoundException(task.getUserId());
+        }
+
+        TaskEntity taskEntity = new TaskEntity(
+                task.getName(),
+                task.getDescription(),
+                task.getDueDate(),
+                UserMapper.mapUserResponseToUserEntity(user));
+
         TaskEntity taskAdded = taskRepository.save(taskEntity);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -82,20 +89,13 @@ public class TasksEndPoint implements TasksApi {
         Optional<TaskEntity> opt = taskRepository.findById(taskId);
 
         if (opt.isPresent()) {
-
-            UserEntity user = usersEndPoint.getUser(taskRequest.getUserId()).getBody();
-
+            UserResponse user = usersEndPoint.getUser(taskRequest.getUserId()).getBody();
             if (user == null) {
-                return ResponseEntity.badRequest().build();
+                throw new UserNotFoundException(taskRequest.getUserId());
             }
-
-            TaskEntity taskEntity = opt.get();
-            taskEntity.setName(taskRequest.getName());
-            taskEntity.setDescription(taskRequest.getDescription());
-            taskEntity.setDueDate(taskRequest.getDueDate());
-            taskEntity.setUser(user);
+            TaskEntity taskEntity = opt.get().update(TaskMapper.mapTaskRequestToTaskEntity(taskRequest, UserMapper.mapUserResponseToUserEntity(user)));
             taskRepository.save(taskEntity);
-            return new ResponseEntity<TaskResponse>(TaskMapper.mapTaskEntityToTaskResponse(taskEntity), HttpStatus.OK);
+            return new ResponseEntity<>(TaskMapper.mapTaskEntityToTaskResponse(taskEntity), HttpStatus.OK);
         } else {
             throw new TaskNotFoundException(taskId);
         }
@@ -114,15 +114,9 @@ public class TasksEndPoint implements TasksApi {
     public ResponseEntity<Void> tasksTaskIdPut(Integer taskId, TaskRequest taskRequest) {
         Optional<TaskEntity> opt = taskRepository.findById(taskId);
         if (opt.isPresent()) {
-            TaskEntity taskEntity = opt.get();
-            taskEntity.setName(taskRequest.getName());
-            taskEntity.setDescription(taskRequest.getDescription());
-            taskEntity.setDueDate(taskRequest.getDueDate());
-            taskEntity.setUser(usersEndPoint.getUser(taskRequest.getUserId()).getBody());
-            taskRepository.save(taskEntity);
-            return ResponseEntity.ok().build();
+            return new ResponseEntity<>(tasksTaskIdPatch(taskId, taskRequest).getStatusCode());
         } else {
-            throw new TaskNotFoundException(taskId);
+            return addTask(taskRequest);
         }
     }
 

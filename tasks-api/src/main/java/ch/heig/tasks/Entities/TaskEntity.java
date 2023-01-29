@@ -33,12 +33,19 @@ public class TaskEntity {
 
     public TaskEntity() {}
 
-    public TaskEntity(int id, String name, String description, OffsetDateTime dueDate, UserEntity user) {
-        this.id = id;
+    public TaskEntity(String name, String description, OffsetDateTime dueDate, UserEntity user) {
         this.name = name;
         this.description = description;
         this.dueDate = dueDate;
         this.user = user;
+    }
+
+    public TaskEntity update(TaskEntity task) {
+        this.name = task.name;
+        this.description = task.description;
+        this.dueDate = task.dueDate;
+        this.user = task.user;
+        return task;
     }
 
     public int getId() {
@@ -80,4 +87,5 @@ public class TaskEntity {
     public void setUser(UserEntity user) {
         this.user = user;
     }
+
 }

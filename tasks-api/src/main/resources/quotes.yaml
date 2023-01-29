@@ -120,7 +120,7 @@ paths:
         200:
           description: Task replaced successfully
         404:
-          description: Task not found
+          description: User not found
         400:
           description: Bad request
   /users:
@@ -235,8 +235,6 @@ paths:
       responses:
         200:
           description: User replaced successfully
-        404:
-          description: User not found
         400:
           description: Bad request
 components:
