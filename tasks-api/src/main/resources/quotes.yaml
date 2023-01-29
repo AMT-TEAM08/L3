@@ -44,6 +44,8 @@ paths:
               schema:
                 type: string
                 format: uri
+        '400':
+          description: Bad request
   /tasks/{task_id}:
     get:
       tags:
@@ -156,6 +158,8 @@ paths:
               schema:
                 type: string
                 format: uri
+        '400':
+          description: Bad request
   /users/{user_id}:
     get:
       tags:
@@ -177,6 +181,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Bad request
         '404':
           description: User not found
     patch:

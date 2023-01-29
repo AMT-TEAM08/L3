@@ -1,6 +1,7 @@
 package ch.heig.tasks.api.endpoints;
 
 import ch.heig.tasks.Entities.TaskEntity;
+import ch.heig.tasks.Entities.UserEntity;
 import ch.heig.tasks.api.TasksApi;
 import ch.heig.tasks.api.exceptions.TaskNotFoundException;
 import ch.heig.tasks.api.model.TaskRequest;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -78,12 +80,20 @@ public class TasksEndPoint implements TasksApi {
     @Override
     public ResponseEntity<TaskResponse> tasksTaskIdPatch(Integer taskId, TaskRequest taskRequest) {
         Optional<TaskEntity> opt = taskRepository.findById(taskId);
+
         if (opt.isPresent()) {
+
+            UserEntity user = usersEndPoint.getUser(taskRequest.getUserId()).getBody();
+
+            if (user == null) {
+                return ResponseEntity.badRequest().build();
+            }
+
             TaskEntity taskEntity = opt.get();
             taskEntity.setName(taskRequest.getName());
             taskEntity.setDescription(taskRequest.getDescription());
             taskEntity.setDueDate(taskRequest.getDueDate());
-            taskEntity.setUser(usersEndPoint.getUser(taskRequest.getUserId()).getBody());
+            taskEntity.setUser(user);
             taskRepository.save(taskEntity);
             return new ResponseEntity<TaskResponse>(TaskMapper.mapTaskEntityToTaskResponse(taskEntity), HttpStatus.OK);
         } else {
