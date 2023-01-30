@@ -1,12 +1,10 @@
 package ch.heig.tasks.api.endpoints;
 
-import ch.heig.tasks.Entities.TaskEntity;
 import ch.heig.tasks.Entities.UserEntity;
 import ch.heig.tasks.api.UsersApi;
+import ch.heig.tasks.api.exceptions.UserIdNotMatchingException;
 import ch.heig.tasks.api.exceptions.UserNotFoundException;
-import ch.heig.tasks.api.model.UserRequest;
-import ch.heig.tasks.api.model.UserResponse;
-import ch.heig.tasks.mappers.UserMapper;
+import ch.heig.tasks.api.model.User;
 import ch.heig.tasks.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,16 +23,12 @@ public class UsersEndPoint implements UsersApi {
     @Autowired
     private UserRepository userRepository;
 
-    /**
-     * POST /users : Add a new user
-     *
-     * @param userRequest (required)
-     * @return User created successfully (status code 201)
-     * or Bad request (status code 400)
-     */
     @Override
-    public ResponseEntity<Void> addUser(UserRequest userRequest) {
-        UserEntity userEntity = UserMapper.mapUserRequestToUserEntity(userRequest);
+    public ResponseEntity<Void> addUser(User user) {
+        if (userRepository.findById(user.getId()).isPresent()) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+        UserEntity userEntity = new UserEntity(user);
         UserEntity userAdded = userRepository.save(userEntity);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -44,78 +38,56 @@ public class UsersEndPoint implements UsersApi {
         return ResponseEntity.created(uri).build();
     }
 
-    /**
-     * GET /users/{user_id} : Retrieve a user by ID
-     *
-     * @param userId The ID of the user (required)
-     * @return User retrieved successfully (status code 200)
-     * or Bad request (status code 400)
-     * or User not found (status code 404)
-     */
     @Override
-    public ResponseEntity<UserResponse> getUser(Integer userId) {
+    public ResponseEntity<User> getUser(Integer userId) {
         Optional<UserEntity> user = userRepository.findById(userId);
         if (user.isPresent()) {
-            return new ResponseEntity<>(UserMapper.mapUserEntityToUserResponse(user.get()), HttpStatus.OK);
+            return new ResponseEntity<>(user.get().toUser(), HttpStatus.OK);
         } else {
             throw new UserNotFoundException(userId);
         }
     }
 
-    /**
-     * GET /users : Retrieve a list of all users
-     *
-     * @return List of users retrieved successfully (status code 200)
-     */
     @Override
-    public ResponseEntity<List<UserResponse>> getUsers() {
+    public ResponseEntity<List<User>> getUsers() {
         List<UserEntity> userEntities = userRepository.findAll();
-        List<UserResponse> users = new ArrayList<>();
+        List<User> users = new ArrayList<>();
         for (UserEntity userEntity : userEntities) {
-            users.add(UserMapper.mapUserEntityToUserResponse(userEntity));
+            users.add(userEntity.toUser());
         }
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    /**
-     * PATCH /users/{user_id} : Update a user
-     *
-     * @param userId      The ID of the user (required)
-     * @param userRequest (required)
-     * @return User updated successfully (status code 200)
-     * or User not found (status code 404)
-     * or Bad request (status code 400)
-     */
     @Override
-    public ResponseEntity<UserResponse> usersUserIdPatch(Integer userId, UserRequest userRequest) {
-        Optional<UserEntity> user = userRepository.findById(userId);
-        if (user.isPresent()) {
-            UserEntity userEntity = user.get();
-            userEntity.setId(userId);
-            userEntity.setName(userRequest.getName());
-            userRepository.save(userEntity);
-            return new ResponseEntity<>(UserMapper.mapUserEntityToUserResponse(userEntity), HttpStatus.OK);
+    public ResponseEntity<Void> usersUserIdPatch(Integer userId, User user) {
+        if (!userId.equals(user.getId())) {
+            throw new UserIdNotMatchingException(userId, user.getId());
+        }
+        Optional<UserEntity> userToUpdate = userRepository.findById(userId);
+        if (userToUpdate.isPresent()) {
+            return updateUser(userId, user, userToUpdate.get());
         } else {
             throw new UserNotFoundException(userId);
         }
     }
 
-    /**
-     * PUT /users/{user_id} : Replace a user
-     *
-     * @param userId      The ID of the user (required)
-     * @param userRequest (required)
-     * @return User replaced successfully (status code 200)
-     * or User not found (status code 404)
-     * or Bad request (status code 400)
-     */
     @Override
-    public ResponseEntity<Void> usersUserIdPut(Integer userId, UserRequest userRequest) {
+    public ResponseEntity<Void> usersUserIdPut(Integer userId, User user) {
+        if (!userId.equals(user.getId())) {
+            throw new UserIdNotMatchingException(userId, user.getId());
+        }
         Optional<UserEntity> userToUpdate = userRepository.findById(userId);
         if (userToUpdate.isPresent()) {
-            return new ResponseEntity<>(usersUserIdPatch(userId, userRequest).getStatusCode());
+            return updateUser(userId, user, userToUpdate.get());
         } else {
-            return addUser(userRequest);
+            return addUser(user);
         }
+    }
+
+    private ResponseEntity<Void> updateUser(Integer userId, User user, UserEntity userToUpdate) {
+        userToUpdate.setId(userId);
+        userToUpdate.setName(user.getName());
+        userRepository.save(userToUpdate);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

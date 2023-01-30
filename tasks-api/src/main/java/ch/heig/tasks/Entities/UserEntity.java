@@ -1,5 +1,6 @@
 package ch.heig.tasks.Entities;
 
+import ch.heig.tasks.api.model.User;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +10,6 @@ import java.util.List;
 public class UserEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(name = "name")
@@ -20,8 +20,21 @@ public class UserEntity {
 
     public UserEntity() {}
 
-    public UserEntity(String name) {
+    public UserEntity(int id, String name) {
+        this.id = id;
         this.name = name;
+    }
+
+    public UserEntity(User user) {
+        this.id = user.getId();
+        this.name = user.getName();
+    }
+
+    public User toUser() {
+        User u = new User();
+        u.setId(this.id);
+        u.setName(this.name);
+        return u;
     }
 
     public int getId() {

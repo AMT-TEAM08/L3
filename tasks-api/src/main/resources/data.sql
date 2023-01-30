@@ -1,6 +1,6 @@
-INSERT INTO users (name) VALUES
-('Thomas Bangalter'),
-('Guy-Manuel de Homem-Christo');
+INSERT INTO users (id, name) VALUES
+(1, 'Thomas Bangalter'),
+(2, 'Guy-Manuel de Homem-Christo');
 
 INSERT INTO tasks (name, description, due_date, user_id) VALUES
 ('Task 1', 'Description 1', '2022-01-01', 1),
