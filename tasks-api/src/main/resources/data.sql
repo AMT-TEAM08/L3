@@ -1,3 +1,9 @@
+INSERT INTO tags (name, description) VALUES
+('tag1', 'Description 1'),
+('tag2', 'Description 2'),
+('tag3', 'Description 3'),
+('tag4', 'Description 4');
+
 INSERT INTO users (id, name) VALUES
 (1, 'Thomas Bangalter'),
 (2, 'Guy-Manuel de Homem-Christo');

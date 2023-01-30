@@ -1,17 +1,15 @@
 package ch.heig.tasks.api.endpoints;
 
+import ch.heig.tasks.Entities.TagEntity;
 import ch.heig.tasks.Entities.TaskEntity;
 import ch.heig.tasks.Entities.UserEntity;
 import ch.heig.tasks.api.TasksApi;
 import ch.heig.tasks.api.exceptions.TaskNotFoundException;
 import ch.heig.tasks.api.exceptions.UserNotFoundException;
-import ch.heig.tasks.api.model.TaskRequest;
-import ch.heig.tasks.api.model.TaskResponse;
-import ch.heig.tasks.api.model.TasksTaskIdAssignPutRequest;
-import ch.heig.tasks.api.model.User;
+import ch.heig.tasks.api.model.*;
 import ch.heig.tasks.mappers.TaskMapper;
+import ch.heig.tasks.repositories.TagRepository;
 import ch.heig.tasks.repositories.TaskRepository;
-import ch.heig.tasks.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +32,7 @@ public class TasksEndPoint implements TasksApi {
     private UsersEndPoint usersEndPoint;
 
     @Autowired
-    private UserRepository userRepository;
+    private TagRepository tagRepository;
 
     @Override
     public ResponseEntity<List<TaskResponse>> getTasks() {
@@ -57,7 +55,8 @@ public class TasksEndPoint implements TasksApi {
                 task.getName(),
                 task.getDescription(),
                 task.getDueDate(),
-                new UserEntity(user));
+                new UserEntity(user),
+                new ArrayList<>());
 
         TaskEntity taskAdded = taskRepository.save(taskEntity);
         URI uri = ServletUriComponentsBuilder
@@ -123,5 +122,46 @@ public class TasksEndPoint implements TasksApi {
         } else {
             throw new TaskNotFoundException(taskId);
         }
+    }
+
+    /**
+     * PUT /tasks/{task_id}/tags : Add tags to a task
+     *
+     * @param taskId                    The ID of the task (required)
+     * @param tasksTaskIdTagsPutRequest (required)
+     * @return Tags added successfully (status code 204)
+     * or Task not found (status code 404)
+     * or Bad request (status code 400)
+     */
+    @Override
+    public ResponseEntity<Void> tasksTaskIdTagsPut(Integer taskId, TasksTaskIdTagsPutRequest tasksTaskIdTagsPutRequest) {
+        Optional<TaskEntity> opt = taskRepository.findById(taskId);
+
+        if (opt.isPresent()) {
+            TaskEntity taskEntity = opt.get();
+            List<TagEntity> tagEntities = tagRepository.findAllById(tasksTaskIdTagsPutRequest.getTags());
+            taskEntity.setTags(tagEntities);
+            taskRepository.save(taskEntity);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            throw new TaskNotFoundException(taskId);
+        }
+    }
+
+    /**
+     * GET /tasks/{tag_name} : Retrieve a list of all tasks by tag name
+     *
+     * @param tagName The name of the tag (required)
+     * @return List of tasks retrieved successfully (status code 200)
+     * or Tag not found (status code 404)
+     */
+    @Override
+    public ResponseEntity<List<TaskResponse>> getTasksByTagName(String tagName) {
+        List<TaskEntity> taskEntities = taskRepository.findAllByTags_Name(tagName);
+        List<TaskResponse> tasks  = new ArrayList<>();
+        for (TaskEntity taskEntity : taskEntities) {
+            tasks.add(TaskMapper.mapTaskEntityToTaskResponse(taskEntity));
+        }
+        return new ResponseEntity<>(tasks,HttpStatus.OK);
     }
 }

@@ -46,6 +46,30 @@ paths:
                 format: uri
         '400':
           description: Bad request
+  /tasks/tags/{tag_name}:
+    get:
+      tags:
+        - Task-end-point
+      summary: Retrieve a list of all tasks by tag name
+      operationId: getTasksByTagName
+      parameters:
+        - name: tag_name
+          in: path
+          required: true
+          description: The name of the tag
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of tasks retrieved successfully
+          content:
+            'application/json':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskResponse'
+        '404':
+          description: Tag not found
   /tasks/{task_id}:
     get:
       tags:
@@ -122,6 +146,37 @@ paths:
           description: User assigned successfully
         '404':
           description: Task or user not found
+        '400':
+          description: Bad request
+  /tasks/{task_id}/tags:
+    put:
+      tags:
+        - Task-end-point
+      summary: Add tags to a task
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: The ID of the task
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '204':
+          description: Tags added successfully
+        '404':
+          description: Task not found
         '400':
           description: Bad request
   /users:
@@ -265,6 +320,7 @@ paths:
           description: User not found
         '400':
           description: Bad request
+
 components:
   schemas:
     TaskResponse:
@@ -314,3 +370,13 @@ components:
         name:
           type: string
           description: The name of the user
+    Tag:
+      type: object
+      description: Tag object
+      properties:
+        name:
+          type: string
+          description: The name of the tag
+        description:
+          type: string
+          description: A brief description of the tag

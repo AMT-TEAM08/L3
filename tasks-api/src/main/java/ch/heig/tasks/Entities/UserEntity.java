@@ -61,7 +61,4 @@ public class UserEntity {
         this.tasks = tasks;
     }
 
-    public void addTask(TaskEntity task) {
-        this.tasks.add(task);
-    }
 }

@@ -4,6 +4,7 @@ package ch.heig.tasks.Entities;
 import jakarta.persistence.*;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Entity(name = "TaskResponse")
 @Table(name = "Tasks")
@@ -26,13 +27,22 @@ public class TaskEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
+    @ManyToMany
+    @JoinTable(
+            name = "Task_Tag",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_name")
+    )
+    private List<TagEntity> tags;
+
     public TaskEntity() {}
 
-    public TaskEntity(String name, String description, OffsetDateTime dueDate, UserEntity user) {
+    public TaskEntity(String name, String description, OffsetDateTime dueDate, UserEntity user, List<TagEntity> tags) {
         this.name = name;
         this.description = description;
         this.dueDate = dueDate;
         this.user = user;
+        this.tags = tags;
     }
 
     public TaskEntity update(TaskEntity task) {
@@ -40,6 +50,7 @@ public class TaskEntity {
         this.description = task.description;
         this.dueDate = task.dueDate;
         this.user = task.user;
+        this.tags = task.tags;
         return task;
     }
 
@@ -81,6 +92,14 @@ public class TaskEntity {
 
     public void setUser(UserEntity user) {
         this.user = user;
+    }
+
+    public List<TagEntity> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<TagEntity> tags) {
+        this.tags = tags;
     }
 
 }

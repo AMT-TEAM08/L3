@@ -14,4 +14,6 @@ public interface TaskRepository extends JpaRepository<TaskEntity, Integer> {
     TaskEntity findById(int id);
 
     List<TaskEntity> findAll();
+
+    List<TaskEntity> findAllByTags_Name(String name);
 }
