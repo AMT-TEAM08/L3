@@ -8,14 +8,9 @@ import java.time.OffsetDateTime;
 @Entity(name = "TaskResponse")
 @Table(name = "Tasks")
 public class TaskEntity {
-    @TableGenerator(name = "genTasks",
-            table = "idTasks",
-            pkColumnName = "name",
-            valueColumnName = "val",
-            initialValue = 3,
-            allocationSize = 100)
-    @Id // @GeneratedValue
-    @GeneratedValue(strategy = GenerationType.TABLE, generator = "genTasks")
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(name = "name")
