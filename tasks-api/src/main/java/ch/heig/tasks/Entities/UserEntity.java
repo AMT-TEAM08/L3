@@ -60,4 +60,8 @@ public class UserEntity {
     public void setTasks(List<TaskEntity> tasks) {
         this.tasks = tasks;
     }
+
+    public void addTask(TaskEntity task) {
+        this.tasks.add(task);
+    }
 }

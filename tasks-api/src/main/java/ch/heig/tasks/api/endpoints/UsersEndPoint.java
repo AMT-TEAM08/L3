@@ -1,10 +1,13 @@
 package ch.heig.tasks.api.endpoints;
 
+import ch.heig.tasks.Entities.TaskEntity;
 import ch.heig.tasks.Entities.UserEntity;
 import ch.heig.tasks.api.UsersApi;
 import ch.heig.tasks.api.exceptions.UserIdNotMatchingException;
 import ch.heig.tasks.api.exceptions.UserNotFoundException;
+import ch.heig.tasks.api.model.TaskResponse;
 import ch.heig.tasks.api.model.User;
+import ch.heig.tasks.mappers.TaskMapper;
 import ch.heig.tasks.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -82,6 +85,29 @@ public class UsersEndPoint implements UsersApi {
         } else {
             return addUser(user);
         }
+    }
+
+    /**
+     * GET /users/{user_id}/tasks : Retrieve a list of all tasks assigned to a user
+     *
+     * @param userId The ID of the user (required)
+     * @return List of tasks retrieved successfully (status code 200)
+     * or User not found (status code 404)
+     * or Bad request (status code 400)
+     */
+    @Override
+    public ResponseEntity<List<TaskResponse>> getUserTasks(Integer userId) {
+        Optional<UserEntity> user = userRepository.findById(userId);
+        if (user.isPresent()) {
+            List<TaskResponse> tasks = new ArrayList<>();
+            for (TaskEntity taskEntity : user.get().getTasks()) {
+                tasks.add(TaskMapper.mapTaskEntityToTaskResponse(taskEntity));
+            }
+            return new ResponseEntity<>(tasks, HttpStatus.OK);
+        } else {
+            throw new UserNotFoundException(userId);
+        }
+
     }
 
     private ResponseEntity<Void> updateUser(Integer userId, User user, UserEntity userToUpdate) {

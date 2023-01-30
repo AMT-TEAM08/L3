@@ -11,6 +11,7 @@ import ch.heig.tasks.api.model.TasksTaskIdAssignPutRequest;
 import ch.heig.tasks.api.model.User;
 import ch.heig.tasks.mappers.TaskMapper;
 import ch.heig.tasks.repositories.TaskRepository;
+import ch.heig.tasks.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,9 @@ public class TasksEndPoint implements TasksApi {
 
     @Autowired
     private UsersEndPoint usersEndPoint;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public ResponseEntity<List<TaskResponse>> getTasks() {
@@ -112,7 +116,8 @@ public class TasksEndPoint implements TasksApi {
                 throw new UserNotFoundException(tasksTaskIdAssignPutRequest.getUserId());
             }
             TaskEntity taskEntity = opt.get();
-            taskEntity.setUser(new UserEntity(user));
+            UserEntity userEntity = new UserEntity(user);
+            taskEntity.setUser(userEntity);
             taskRepository.save(taskEntity);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {

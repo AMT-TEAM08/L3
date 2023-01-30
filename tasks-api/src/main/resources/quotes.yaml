@@ -238,6 +238,33 @@ paths:
           description: User replaced successfully
         '400':
           description: Bad request
+  /users/{user_id}/tasks:
+    get:
+      tags:
+        - User-end-point
+      summary: Retrieve a list of all tasks assigned to a user
+      operationId: getUserTasks
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: List of tasks retrieved successfully
+          content:
+            'application/json':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskResponse'
+        '404':
+          description: User not found
+        '400':
+          description: Bad request
 components:
   schemas:
     TaskResponse:
