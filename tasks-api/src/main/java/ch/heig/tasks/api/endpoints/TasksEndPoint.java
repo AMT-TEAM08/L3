@@ -46,9 +46,15 @@ public class TasksEndPoint implements TasksApi {
 
     @Override
     public ResponseEntity<Void> addTask(@RequestBody TaskRequest task) {
+        if (task.getUserId() == null) {
+            throw new UserNotFoundException(null);
+        }
         User user = usersEndPoint.getUser(task.getUserId()).getBody();
         if (user == null) {
             throw new UserNotFoundException(task.getUserId());
+        }
+        if (task.getName() == null || task.getName().isEmpty()) {
+            return ResponseEntity.badRequest().build();
         }
 
         TaskEntity taskEntity = new TaskEntity(
