@@ -14,3 +14,13 @@ Feature: Adding tasks to the task list
     Given a task with the title "My first task" and the user id 0
     When I POST the task to the /tasks endpoint
     Then the server should respond with a 404 status code
+
+  Scenario: Modifying a task
+    Given a task with the title "My first task" and the user id 1
+    When I PATCH the task to the /tasks/1 endpoint
+    Then the server should respond with a 204 status code
+
+  Scenario: Modifying a task that does not exist
+    Given a task with the title "My first task" and the user id 1
+    When I PATCH the task to the /tasks/0 endpoint
+    Then the server should respond with a 404 status code

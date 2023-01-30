@@ -92,4 +92,14 @@ public class TaskSteps {
     public void theResponseBodyShouldBeATaskWithTheTitle(String title) {
         assertEquals(title, task.getName());
     }
+
+    @When("I PATCH the task to the \\/tasks\\/{int} endpoint")
+    public void iPATCHTheTaskToTheTasksEndpoint(int id) {
+        try {
+            ApiResponse<Void> res = api.tasksTaskIdPatchWithHttpInfo(id, taskRequest);
+            statusCode = res.getStatusCode();
+        } catch (ApiException e) {
+            statusCode = e.getCode();
+        }
+    }
 }
