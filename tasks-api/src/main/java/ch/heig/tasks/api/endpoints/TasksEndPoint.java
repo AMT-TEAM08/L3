@@ -7,6 +7,7 @@ import ch.heig.tasks.api.exceptions.TaskNotFoundException;
 import ch.heig.tasks.api.exceptions.UserNotFoundException;
 import ch.heig.tasks.api.model.TaskRequest;
 import ch.heig.tasks.api.model.TaskResponse;
+import ch.heig.tasks.api.model.TasksTaskIdAssignPutRequest;
 import ch.heig.tasks.api.model.User;
 import ch.heig.tasks.mappers.TaskMapper;
 import ch.heig.tasks.repositories.TaskRepository;
@@ -92,4 +93,30 @@ public class TasksEndPoint implements TasksApi {
         }
     }
 
+    /**
+     * PUT /tasks/{task_id}/assign : Assign a user to a task
+     *
+     * @param taskId                      The ID of the task (required)
+     * @param tasksTaskIdAssignPutRequest (required)
+     * @return User assigned successfully (status code 204)
+     * or Task or user not found (status code 404)
+     * or Bad request (status code 400)
+     */
+    @Override
+    public ResponseEntity<Void> tasksTaskIdAssignPut(Integer taskId, TasksTaskIdAssignPutRequest tasksTaskIdAssignPutRequest) {
+        Optional<TaskEntity> opt = taskRepository.findById(taskId);
+
+        if (opt.isPresent()) {
+            User user = usersEndPoint.getUser(tasksTaskIdAssignPutRequest.getUserId()).getBody();
+            if (user == null) {
+                throw new UserNotFoundException(tasksTaskIdAssignPutRequest.getUserId());
+            }
+            TaskEntity taskEntity = opt.get();
+            taskEntity.setUser(new UserEntity(user));
+            taskRepository.save(taskEntity);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            throw new TaskNotFoundException(taskId);
+        }
+    }
 }

@@ -94,6 +94,36 @@ paths:
           description: Task not found
         '400':
           description: Bad request
+  /tasks/{task_id}/assign:
+    put:
+      tags:
+        - Task-end-point
+      summary: Assign a user to a task
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: The ID of the task
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  description: The ID of the user
+      responses:
+        '204':
+          description: User assigned successfully
+        '404':
+          description: Task or user not found
+        '400':
+          description: Bad request
   /users:
     get:
       tags:
@@ -253,7 +283,7 @@ components:
       properties:
         id:
           type: integer
-          description: The auto-generated id of the user
+          description: The id of the user
         name:
           type: string
           description: The name of the user
