@@ -1,6 +1,13 @@
 # Labo 3 - Task management API
 This API is a Task Management API that provides functionalities for managing tasks, such as retrieving tasks by ID or tag, adding or updating tasks, assigning users to tasks, and adding tags to tasks.
 
+Link to the video :
+https://hessoit.sharepoint.com/sites/AMT-2022-2023-AMT-TEAM08/Documents%20partages/Enregistrements/Nouvelle%20r%C3%A9union%20de%20canal-20230130_170738-Enregistrement%20de%20la%20r%C3%A9union.mp4?web=1
+
+Deuxième lien si vous arrivez pas a vous connecter :
+https://drive.google.com/file/d/1G_b4QDxAjZ1dwtN6D-WvUSPLpdUICI4d/view?usp=sharing
+
+
 # quotes-exemple
 Mise en oeuvre d'une api avec Springboot et d'un client de test BDD avec Cucumber 
 Avec OpenApi generator, génération à partir d'un fichier OpenAPI "quotes.yaml" :
